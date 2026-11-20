@@ -1,27 +1,23 @@
 # RacketService
 
-Verwaltungs-App für Bespannungsservice Lisa-Marie Wurst.
+Verwaltungs-App für den Bespannungsservice Lisa-Marie Wurst.
 
-## Funktionen
+## Kunde
 
-- Registrierung und Anmeldung per Supabase
-- Kunden sehen nur ihre eigenen Aufträge und Schläger
-- Admins verwalten alle Kunden, Schläger und Aufträge
-- Registrierung legt automatisch einen Profil-Eintrag in `public.customers` an
+- Registrierung und Anmeldung
+- Kontaktdaten und Adresse verwalten
+- Über **Neuer Auftrag** einen Schläger mit Saite, Zuggewicht und Bemerkung erfassen
+- Aufträge können nur für den eigenen Account angelegt und eingesehen werden
 
-## Supabase-Ergänzung
+## Admin
 
-Die Tabelle `public.customers` benötigt zusätzlich eine optionalen Admin-Schalter:
+- Alle Kunden anzeigen
+- Alle Schläger anzeigen
+- Alle Aufträge anzeigen
+- Kundenrollen über das Feld `is_admin` in `public.customers` verwalten
 
-```sql
-alter table public.customers add column if not exists is_admin boolean default false;
+## Supabase
 
-create policy "admins_read_customers"
-on public.customers for select
-using (
-  (select is_admin from public.customers where id = auth.uid())
-  or id = auth.uid()
-);
-```
+Für Aufträge werden die Tabellen `rackets` und `orders` mit den Spalten `customer_id`, `model`, `grip`, `racket_id`, `string`, `tension`, `status`, `notes` und `created_at` benötigt.
 
-Erstelle für Schläger und Aufträge Tabellen mit einer `customer_id`-Spalte und aktiviertem RLS. Ordne den Admin über `is_admin = true` zu.
+Die Kundenrichtlinien erlauben das Einfügen und Lesen eigener Daten. Adminzugriffe werden über `public.is_racketservice_admin()` gesteuert.
