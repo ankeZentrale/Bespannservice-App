@@ -1,10 +1,177 @@
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-const supabase = createClient(
-  'DEINE_URL',
-  'DEIN_PUBLISHABLE_KEY'
-)
+<title>Bespannservice Kundenportal</title>
 
-window.supabase = supabase
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom:20px;
+}
+
+h1{
+    text-align:center;
+    color:#1e3a8a;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:6px;
+    box-sizing:border-box;
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+#message{
+    margin-top:10px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎾 Bespannservice Kundenportal</h1>
+
+<div class="card">
+
+<h2>Registrierung</h2>
+
+<input type="text" id="firstname" placeholder="Vorname">
+
+<input type="text" id="lastname" placeholder="Nachname">
+
+<input type="text" id="phone" placeholder="Telefon">
+
+<input type="email" id="email" placeholder="E-Mail">
+
+<input type="password" id="password" placeholder="Passwort">
+
+<button onclick="registerUser()">
+Registrieren
+</button>
+
+<div id="message"></div>
+
+</div>
+
+<script>
+
+// HIER DEINE DATEN EINTRAGEN
+const SUPABASE_URL =
+"https://DEIN-PROJEKT.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"DEIN_PUBLISHABLE_KEY";
+
+const { createClient } = supabase;
+
+const client = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+async function registerUser() {
+
+    const firstname =
+        document.getElementById("firstname").value;
+
+    const lastname =
+        document.getElementById("lastname").value;
+
+    const phone =
+        document.getElementById("phone").value;
+
+    const email =
+        document.getElementById("email").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    const message =
+        document.getElementById("message");
+
+    message.innerHTML = "Registrierung läuft...";
+
+    try {
+
+        const { data, error } =
+            await client.auth.signUp({
+                email: email,
+                password: password
+            });
+
+        if(error){
+            message.style.color = "red";
+            message.innerHTML = error.message;
+            return;
+        }
+
+        const userId = data.user.id;
+
+        const { error: insertError } =
+            await client
+            .from("customers")
+            .insert([{
+                id: userId,
+                firstname: firstname,
+                lastname: lastname,
+                phone: phone,
+                email: email
+            }]);
+
+        if(insertError){
+            message.style.color = "red";
+            message.innerHTML = insertError.message;
+            return;
+        }
+
+        message.style.color = "green";
+        message.innerHTML =
+            "✅ Registrierung erfolgreich";
+
+    }
+    catch(ex){
+
+        message.style.color = "red";
+        message.innerHTML =
+            "Fehler: " + ex.message;
+
+    }
+
+}
+
 </script>
+
+</body>
+</html>
