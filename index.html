@@ -1,23 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-<title>Supabase Test</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bespannservice Kundenportal</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom:20px;
+}
+
+h1{
+    text-align:center;
+    color:#1e3a8a;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:6px;
+    box-sizing:border-box;
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+#message{
+    margin-top:10px;
+    font-weight:bold;
+}
+</style>
 </head>
+
 <body>
 
-<h1>Supabase Test</h1>
+<h1>🎾 Bespannservice Kundenportal</h1>
 
-<button onclick="testSupabase()">
-Verbindung testen
+<div class="card">
+
+<h2>Registrierung</h2>
+
+<input type="text" id="firstname" placeholder="Vorname">
+
+<input type="text" id="lastname" placeholder="Nachname">
+
+<input type="text" id="phone" placeholder="Telefon">
+
+<input type="email" id="email" placeholder="E-Mail">
+
+<input type="password" id="password" placeholder="Passwort">
+
+<button onclick="registerUser()">
+Registrieren
 </button>
 
-<div id="result"></div>
+<div id="message"></div>
+
+</div>
 
 <script>
 
+// HIER DEINE DATEN EINTRAGEN
 const SUPABASE_URL =
 "https://jaiopyopglxuvrrjdqrk.supabase.co";
 
@@ -26,44 +96,47 @@ const SUPABASE_ANON_KEY =
 
 const { createClient } = supabase;
 
-const client =
-createClient(
-SUPABASE_URL,
-SUPABASE_ANON_KEY
+const client = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
 );
 
-async function testSupabase(){
+async function registerUser() {
 
-document.getElementById("result").innerHTML =
-"Client erstellt ✅";
+    const firstname =
+        document.getElementById("firstname").value;
 
-try{
+    const lastname =
+        document.getElementById("lastname").value;
 
-const { data, error } =
-await client.auth.getSession();
+    const phone =
+        document.getElementById("phone").value;
 
-if(error){
+    const email =
+        document.getElementById("email").value;
 
-document.getElementById("result").innerHTML =
-"Fehler: " + error.message;
+    const password =
+        document.getElementById("password").value;
 
-return;
-}
+    const message =
+        document.getElementById("message");
 
-document.getElementById("result").innerHTML =
-"Supabase verbunden ✅";
+    message.innerHTML = "Registrierung läuft...";
 
-}
-catch(ex){
+    try {
 
-document.getElementById("result").innerHTML =
-"JavaScript Fehler: " + ex.message;
+        const { data, error } =
+            await client.auth.signUp({
+                email: email,
+                password: password
+            });
 
-}
+        if(error){
+            message.style.color = "red";
+            message.innerHTML = error.message;
+            return;
+        }
 
-}
+        const userId = data.user.id;
 
-</script>
-
-</body>
-</html>
+        const {
