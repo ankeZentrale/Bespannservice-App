@@ -5,45 +5,35 @@
 </head>
 <body>
 
-<button onclick="testSupabase()">
-Supabase testen
+<button onclick="registerUser()">
+Registrieren
 </button>
 
 <script>
 
-alert("Seite geladen");
+async function registerUser() {
 
-const SUPABASE_URL = "https://jaiopyopglxuvrrjdqrk.supabase.co";
-const SUPABASE_ANON_KEY = "DEIN_PUBLISHABLE_KEY";
+    alert("Start Registrierung");
 
-const { createClient } = supabase;
+    const { data, error } =
+    await client.auth.signUp({
 
-alert("Vor createClient");
+        email: "test123@example.com",
+        password: "Passwort123!"
 
-const client = createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+    });
 
-alert("Nach createClient");
+    if(error){
 
-async function testSupabase() {
+        alert("FEHLER: " + error.message);
+        return;
 
-  alert("Button funktioniert");
+    }
 
-  const { data, error } =
-    await client.auth.getSession();
+    alert("Benutzer angelegt");
 
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  alert("Supabase verbunden");
+    console.log(data);
 
 }
 
 </script>
-
-</body>
-</html>
