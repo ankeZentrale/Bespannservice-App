@@ -9,66 +9,43 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
 body{
-font-family:Arial,sans-serif;
-background:#f4f6f9;
-padding:20px;
-max-width:800px;
-margin:auto;
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    padding:20px;
+    max-width:800px;
+    margin:auto;
 }
 
 .card{
-background:white;
-padding:20px;
-margin-bottom:20px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-h1{
-text-align:center;
-color:#1e3a8a;
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 input{
-width:100%;
-padding:10px;
-margin-top:5px;
-margin-bottom:10px;
-border:1px solid #ccc;
-border-radius:6px;
-box-sizing:border-box;
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    box-sizing:border-box;
 }
 
 button{
-background:#2563eb;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:6px;
-cursor:pointer;
-margin-right:5px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:6px;
+    cursor:pointer;
 }
 
 button:hover{
-background:#1d4ed8;
+    background:#1d4ed8;
 }
-
-#dashboard{
-display:none;
-}
-
-.success{
-color:green;
-font-weight:bold;
-}
-
-.error{
-color:red;
-font-weight:bold;
-}
-
 </style>
 </head>
 
@@ -96,204 +73,62 @@ Registrieren
 
 </div>
 
-<div class="card">
-
-<h2>Login</h2>
-
-<input id="loginEmail" type="email" placeholder="E-Mail">
-
-<input id="loginPassword" type="password" placeholder="Passwort">
-
-<button onclick="loginUser()">
-Anmelden
-</button>
-
-<button onclick="logoutUser()">
-Abmelden
-</button>
-
-</div>
-
-<div class="card">
-
 <div id="message"></div>
-
-</div>
-
-<div class="card" id="dashboard">
-
-<h2>Mein Konto</h2>
-
-<div id="userData"></div>
-
-</div>
 
 <script>
 
-const SUPABASE_URL = "https://jaiopyopglxuvrrjdqrk.supabase.co/rest/v1/";
-const SUPABASE_ANON_KEY = "sb_publishable_KRRgCz4faQD2tm-gKUEtag_dXf0wwom";
+const SUPABASE_URL = "HIER_DEINE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "HIER_DEIN_PUBLISHABLE_KEY";
 
-const client = supabase.createClient(
-SUPABASE_URL,
-SUPABASE_ANON_KEY
+const { createClient } = supabase;
+
+const client = createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
 );
-
-function showMessage(text,color){
-
-document.getElementById("message").innerHTML =
-`<span style="color:${color}">${text}</span>`;
-
-}
 
 async function registerUser(){
 
-const firstname =
-document.getElementById("firstname").value;
+    const firstname =
+    document.getElementById("firstname").value;
 
-const lastname =
-document.getElementById("lastname").value;
+    const lastname =
+    document.getElementById("lastname").value;
 
-const phone =
-document.getElementById("phone").value;
+    const phone =
+    document.getElementById("phone").value;
 
-const email =
-document.getElementById("email").value;
+    const email =
+    document.getElementById("email").value;
 
-const password =
-document.getElementById("password").value;
+    const password =
+    document.getElementById("password").value;
 
-const { data, error } =
-await client.auth.signUp({
+    const { data, error } =
+    await client.auth.signUp({
+        email: email,
+        password: password
+    });
 
-email,
-password
+    if(error){
+        document.getElementById("message").innerHTML =
+        error.message;
+        return;
+    }
 
-});
+    await client
+    .from("customers")
+    .insert([{
+        id: data.user.id,
+        firstname: firstname,
+        lastname: lastname,
+        phone: phone,
+        email: email
+    }]);
 
-if(error){
-
-showMessage(error.message,"red");
-return;
-
+    document.getElementById("message").innerHTML =
+    "✅ Registrierung erfolgreich";
 }
-
-const userId = data.user.id;
-
-const { error: customerError } =
-await client
-.from("customers")
-.insert([{
-
-id:userId,
-firstname:firstname,
-lastname:lastname,
-phone:phone,
-email:email
-
-}]);
-
-if(customerError){
-
-showMessage(customerError.message,"red");
-return;
-
-}
-
-showMessage(
-"Registrierung erfolgreich",
-"green"
-);
-
-}
-
-async function loginUser(){
-
-const email =
-document.getElementById("loginEmail").value;
-
-const password =
-document.getElementById("loginPassword").value;
-
-const { error } =
-await client.auth.signInWithPassword({
-
-email,
-password
-
-});
-
-if(error){
-
-showMessage(error.message,"red");
-return;
-
-}
-
-showMessage(
-"Anmeldung erfolgreich",
-"green"
-);
-
-loadUser();
-
-}
-
-async function logoutUser(){
-
-await client.auth.signOut();
-
-document.getElementById("dashboard").style.display =
-"none";
-
-showMessage(
-"Abgemeldet",
-"green"
-);
-
-}
-
-async function loadUser(){
-
-const {
-
-data:{user}
-
-} = await client.auth.getUser();
-
-if(!user){
-
-return;
-
-}
-
-const { data,error } =
-await client
-.from("customers")
-.select("*")
-.eq("id",user.id)
-.single();
-
-if(error){
-
-return;
-
-}
-
-document.getElementById("dashboard").style.display =
-"block";
-
-document.getElementById("userData").innerHTML =
-
-`
-<p><b>Vorname:</b> ${data.firstname}</p>
-<p><b>Nachname:</b> ${data.lastname}</p>
-<p><b>E-Mail:</b> ${data.email}</p>
-<p><b>Telefon:</b> ${data.phone}</p>
-`;
-
-}
-
-loadUser();
 
 </script>
 
