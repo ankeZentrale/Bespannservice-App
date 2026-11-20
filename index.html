@@ -1,177 +1,99 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Bespannservice Kundenportal</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body{
-    font-family:Arial,sans-serif;
-    background:#f4f6f9;
-    max-width:800px;
-    margin:auto;
-    padding:20px;
-}
-
-.card{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-    margin-bottom:20px;
-}
-
-h1{
-    text-align:center;
-    color:#1e3a8a;
-}
-
-input{
-    width:100%;
-    padding:10px;
-    margin:8px 0;
-    border:1px solid #ccc;
-    border-radius:6px;
-    box-sizing:border-box;
-}
-
-button{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:12px 20px;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#1d4ed8;
-}
-
-#message{
-    margin-top:10px;
-    font-weight:bold;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RacketService | Bespannungsverwaltung</title>
+  <style>
+    :root { --navy:#16324f; --blue:#1f66ff; --cyan:#22b8cf; --bg:#eef3f7; --card:#fff; --text:#172b4d; --muted:#64748b; --danger:#dc2626; --line:#e2e8f0; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,Segoe UI,Arial,sans-serif; color:var(--text); background:var(--bg); }
+    .shell { display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+    aside { background:var(--navy); color:white; padding:24px 18px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; margin:0 8px 30px; }
+    .brand-mark { width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,var(--cyan),var(--blue)); display:grid; place-items:center; }
+    nav button { width:100%; border:0; color:#cbd5e1; background:transparent; padding:12px 14px; border-radius:8px; text-align:left; cursor:pointer; margin:3px 0; }
+    nav button.active, nav button:hover { background:rgba(255,255,255,.12); color:white; }
+    main { padding:28px 34px; overflow:hidden; }
+    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+    h1 { margin:0; font-size:26px; } h2 { margin:0 0 16px; font-size:18px; }
+    .actions { display:flex; gap:10px; }
+    button { font:inherit; }
+    .primary { border:0; background:var(--blue); color:white; border-radius:8px; padding:10px 16px; cursor:pointer; }
+    .secondary { border:1px solid var(--line); background:white; color:var(--text); border-radius:8px; padding:9px 13px; cursor:pointer; }
+    .danger { color:var(--danger); border:1px solid #fecaca; background:#fff; border-radius:7px; padding:7px 10px; cursor:pointer; }
+    .cards { display:grid; grid-template-columns:repeat(3,minmax(150px,1fr)); gap:16px; margin-bottom:20px; }
+    .stat { background:white; border-radius:12px; padding:18px; box-shadow:0 2px 10px rgba(15,23,42,.05); }
+    .stat small { color:var(--muted); } .stat strong { display:block; font-size:28px; margin-top:7px; }
+    .card { background:white; border-radius:12px; padding:18px; box-shadow:0 2px 10px rgba(15,23,42,.05); }
+    .toolbar { display:flex; gap:10px; margin-bottom:14px; }
+    input, select { width:100%; border:1px solid #ccd6e0; border-radius:8px; padding:10px 12px; background:white; color:var(--text); }
+    .search { max-width:320px; }
+    table { width:100%; border-collapse:collapse; } th { text-align:left; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; padding:10px; border-bottom:1px solid var(--line); }
+    td { padding:13px 10px; border-bottom:1px solid #edf2f7; } tr:last-child td { border-bottom:0; }
+    .badge { display:inline-block; border-radius:999px; padding:5px 9px; font-size:12px; background:#e8f1ff; color:#2455a4; } .badge.ready { background:#dcfce7; color:#166534; } .badge.progress { background:#fff7d6; color:#8a6200; }
+    .view { display:none; } .view.active { display:block; }
+    dialog { width:min(560px,calc(100% - 32px)); border:0; border-radius:14px; padding:0; box-shadow:0 20px 60px rgba(15,23,42,.25); }
+    dialog::backdrop { background:rgba(15,23,42,.45); } .dialog-head { padding:18px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; } .dialog-body { padding:20px; } .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; } .field label { display:block; font-size:12px; font-weight:700; margin-bottom:6px; } .dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+    .empty { text-align:center; padding:40px; color:var(--muted); }
+    @media(max-width:800px){ .shell{grid-template-columns:1fr} aside{position:sticky;top:0;z-index:5;padding:12px} .brand{display:none} nav{display:flex} nav button{text-align:center} main{padding:20px 14px}.cards{grid-template-columns:1fr}.grid{grid-template-columns:1fr} table{display:block;overflow-x:auto}.actions{display:none} }
+  </style>
 </head>
-
 <body>
+<div class="shell">
+  <aside><div class="brand"><div class="brand-mark">🎾</div> RacketService</div><nav>
+    <button class="active" data-view="dashboard">Übersicht</button><button data-view="customers">Kunden</button><button data-view="rackets">Schläger</button><button data-view="strings">Saiten & Aufträge</button>
+  </nav></aside>
+  <main>
+    <header><h1 id="pageTitle">Übersicht</h1><div class="actions"><button class="secondary" id="exportBtn">Exportieren</button><button class="primary" id="newBtn">+ Neuer Kunde</button></div></header>
 
-<h1>🎾 Bespannservice Kundenportal</h1>
+    <section id="dashboard" class="view active"><div class="cards"><div class="stat"><small>Kunden</small><strong id="customerCount">0</strong></div><div class="stat"><small>Schläger</small><strong id="racketCount">0</strong></div><div class="stat"><small>Aktive Aufträge</small><strong id="orderCount">0</strong></div></div><div class="card"><h2>Neueste Aufträge</h2><div id="recentOrders"></div></div></section>
 
-<div class="card">
+    <section id="customers" class="view"><div class="card"><div class="toolbar"><input class="search" id="customerSearch" placeholder="Kunden suchen…"></div><table><thead><tr><th>Name</th><th>Telefon</th><th>E-Mail</th><th></th></tr></thead><tbody id="customerTable"></tbody></table></div></section>
 
-<h2>Registrierung</h2>
+    <section id="rackets" class="view"><div class="card"><div class="toolbar"><input class="search" id="racketSearch" placeholder="Schläger suchen…"></div><table><thead><tr><th>Kunde</th><th>Marke / Modell</th><th>Griff</th><th>Besaitung</th><th></th></tr></thead><tbody id="racketTable"></tbody></table></div></section>
 
-<input type="text" id="firstname" placeholder="Vorname">
-
-<input type="text" id="lastname" placeholder="Nachname">
-
-<input type="text" id="phone" placeholder="Telefon">
-
-<input type="email" id="email" placeholder="E-Mail">
-
-<input type="password" id="password" placeholder="Passwort">
-
-<button onclick="registerUser()">
-Registrieren
-</button>
-
-<div id="message"></div>
-
+    <section id="strings" class="view"><div class="card"><div class="toolbar"><input class="search" id="orderSearch" placeholder="Auftrag suchen…"></div><table><thead><tr><th>Kunde</th><th>Schläger</th><th>Saite</th><th>Zuggewicht</th><th>Status</th><th></th></tr></thead><tbody id="orderTable"></tbody></table></div></section>
+  </main>
 </div>
 
+<dialog id="customerDialog"><div class="dialog-head"><h2>Neuer Kunde</h2><button class="secondary" onclick="closeDialog('customerDialog')">×</button></div><form class="dialog-body" id="customerForm"><div class="grid"><div class="field"><label>Vorname</label><input name="firstname" required></div><div class="field"><label>Nachname</label><input name="lastname" required></div><div class="field"><label>Telefon</label><input name="phone"></div><div class="field"><label>E-Mail</label><input name="email" type="email"></div></div><div class="dialog-actions"><button type="button" class="secondary" onclick="closeDialog('customerDialog')">Abbrechen</button><button class="primary">Speichern</button></div></form></dialog>
+
+<dialog id="racketDialog"><div class="dialog-head"><h2>Schläger erfassen</h2><button class="secondary" onclick="closeDialog('racketDialog')">×</button></div><form class="dialog-body" id="racketForm"><div class="grid"><div class="field"><label>Kunde</label><select name="customerId" id="racketCustomer" required></select></div><div class="field"><label>Marke / Modell</label><input name="model" required></div><div class="field"><label>Griffgröße</label><input name="grip" placeholder="z. B. 2 / 4 ¼"></div><div class="field"><label>Besaitungsmuster</label><input name="pattern" placeholder="z. B. 16 × 19"></div></div><div class="dialog-actions"><button type="button" class="secondary" onclick="closeDialog('racketDialog')">Abbrechen</button><button class="primary">Speichern</button></div></form></dialog>
+
+<dialog id="orderDialog"><div class="dialog-head"><h2>Neuer Besaitungsauftrag</h2><button class="secondary" onclick="closeDialog('orderDialog')">×</button></div><form class="dialog-body" id="orderForm"><div class="grid"><div class="field"><label>Kunde</label><select name="customerId" id="orderCustomer" required></select></div><div class="field"><label>Schläger</label><select name="racketId" id="orderRacket" required></select></div><div class="field"><label>Saitenmodell</label><input name="string" required></div><div class="field"><label>Zuggewicht (kg)</label><input name="tension" type="number" min="10" max="40" required></div><div class="field"><label>Status</label><select name="status"><option>Neu</option><option>In Arbeit</option><option>Fertig</option><option>Abgeholt</option></select></div></div><div class="dialog-actions"><button type="button" class="secondary" onclick="closeDialog('orderDialog')">Abbrechen</button><button class="primary">Speichern</button></div></form></dialog>
+
 <script>
+const STORAGE='racket-service-v1';
+let db=JSON.parse(localStorage.getItem(STORAGE)||'{"customers":[],"rackets":[],"orders":[]}');
+const $=s=>document.querySelector(s); const esc=s=>String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function save(){localStorage.setItem(STORAGE,JSON.stringify(db));render();}
+function customerName(id){const c=db.customers.find(x=>x.id===id);return c?`${c.firstname} ${c.lastname}`:'Unbekannt';}
+function racketName(id){const r=db.rackets.find(x=>x.id===id);return r?r.model:'Unbekannt';}
+function closeDialog(id){$(('#'+id)).close();}
+function openDialog(id){if(id==='racketDialog'||id==='orderDialog')fillSelects();$(('#'+id)).showModal();}
+function fillSelects(){let opts=db.customers.map(c=>`<option value="${c.id}">${esc(c.firstname+' '+c.lastname)}</option>`).join('');$('#racketCustomer').innerHTML=opts;$('#orderCustomer').innerHTML=opts;$('#orderRacket').innerHTML=db.rackets.map(r=>`<option value="${r.id}">${esc(r.model)}</option>`).join('');}
 
-// HIER DEINE DATEN EINTRAGEN
-const SUPABASE_URL =
-"https://https://jaiopyopglxuvrrjdqrk.supabase.co";
-
-const SUPABASE_ANON_KEY =
-"sb_publishable_KRRgCz4faQD2tm-gKUEtag_dXf0wwom";
-
-const { createClient } = supabase;
-
-const client = createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-);
-
-async function registerUser() {
-
-    const firstname =
-        document.getElementById("firstname").value;
-
-    const lastname =
-        document.getElementById("lastname").value;
-
-    const phone =
-        document.getElementById("phone").value;
-
-    const email =
-        document.getElementById("email").value;
-
-    const password =
-        document.getElementById("password").value;
-
-    const message =
-        document.getElementById("message");
-
-    message.innerHTML = "Registrierung läuft...";
-
-    try {
-
-        const { data, error } =
-            await client.auth.signUp({
-                email: email,
-                password: password
-            });
-
-        if(error){
-            message.style.color = "red";
-            message.innerHTML = error.message;
-            return;
-        }
-
-        const userId = data.user.id;
-
-        const { error: insertError } =
-            await client
-            .from("customers")
-            .insert([{
-                id: userId,
-                firstname: firstname,
-                lastname: lastname,
-                phone: phone,
-                email: email
-            }]);
-
-        if(insertError){
-            message.style.color = "red";
-            message.innerHTML = insertError.message;
-            return;
-        }
-
-        message.style.color = "green";
-        message.innerHTML =
-            "✅ Registrierung erfolgreich";
-
-    }
-    catch(ex){
-
-        message.style.color = "red";
-        message.innerHTML =
-            "Fehler: " + ex.message;
-
-    }
-
+function render(){
+  $('#customerCount').textContent=db.customers.length; $('#racketCount').textContent=db.rackets.length; $('#orderCount').textContent=db.orders.filter(o=>o.status!=='Abgeholt').length;
+  const cs=$('#customerSearch').value?.toLowerCase()||''; $('#customerTable').innerHTML=db.customers.filter(c=>`${c.firstname} ${c.lastname} ${c.phone} ${c.email}`.toLowerCase().includes(cs)).map(c=>`<tr><td><b>${esc(c.firstname)} ${esc(c.lastname)}</b></td><td>${esc(c.phone||'—')}</td><td>${esc(c.email||'—')}</td><td><button class="danger" onclick="removeCustomer('${c.id}')">Löschen</button></td></tr>`).join('')||'<tr><td colspan="4" class="empty">Noch keine Kunden erfasst</td></tr>';
+  const rs=$('#racketSearch').value?.toLowerCase()||''; $('#racketTable').innerHTML=db.rackets.filter(r=>`${r.model} ${r.grip} ${r.pattern} ${customerName(r.customerId)}`.toLowerCase().includes(rs)).map(r=>`<tr><td>${esc(customerName(r.customerId))}</td><td><b>${esc(r.model)}</b><br><small>${esc(r.pattern||'—')}</small></td><td>${esc(r.grip||'—')}</td><td><span class="badge">Schläger</span></td><td><button class="danger" onclick="removeRacket('${r.id}')">Löschen</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Noch keine Schläger erfasst</td></tr>';
+  const os=$('#orderSearch').value?.toLowerCase()||''; $('#orderTable').innerHTML=db.orders.filter(o=>`${customerName(o.customerId)} ${racketName(o.racketId)} ${o.string} ${o.status}`.toLowerCase().includes(os)).map(o=>{const cls=o.status==='Fertig'?'ready':o.status==='In Arbeit'?'progress':'';return `<tr><td>${esc(customerName(o.customerId))}</td><td>${esc(racketName(o.racketId))}</td><td>${esc(o.string)}</td><td>${esc(o.tension)} kg</td><td><span class="badge ${cls}">${esc(o.status)}</span></td><td><button class="danger" onclick="removeOrder('${o.id}')">Löschen</button></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Noch keine Aufträge erfasst</td></tr>';
+  $('#recentOrders').innerHTML=db.orders.length?`<table><thead><tr><th>Kunde</th><th>Schläger</th><th>Status</th></tr></thead><tbody>${db.orders.slice(-5).reverse().map(o=>`<tr><td>${esc(customerName(o.customerId))}</td><td>${esc(racketName(o.racketId))}</td><td><span class="badge ${o.status==='Fertig'?'ready':o.status==='In Arbeit'?'progress':''}">${esc(o.status)}</span></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Noch keine Aufträge vorhanden</div>';
 }
+function removeCustomer(id){if(confirm('Kunde samt zugehörigen Schlägern und Aufträgen löschen?')){db.customers=db.customers.filter(x=>x.id!==id);db.rackets=db.rackets.filter(x=>x.customerId!==id);db.orders=db.orders.filter(x=>x.customerId!==id);save();}}
+function removeRacket(id){if(confirm('Schläger löschen?')){db.rackets=db.rackets.filter(x=>x.id!==id);db.orders=db.orders.filter(x=>x.racketId!==id);save();}}
+function removeOrder(id){if(confirm('Auftrag löschen?')){db.orders=db.orders.filter(x=>x.id!==id);save();}}
 
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$('#'+b.dataset.view).classList.add('active');$('#pageTitle').textContent=b.textContent;$('#newBtn').textContent=b.dataset.view==='customers'?'+ Neuer Kunde':b.dataset.view==='rackets'?'+ Neuer Schläger':b.dataset.view==='strings'?'+ Neuer Auftrag':'Übersicht';});
+$('#newBtn').onclick=()=>{const v=$('nav button.active').dataset.view;if(v==='rackets')openDialog(db.customers.length?'racketDialog':'customerDialog');else if(v==='strings')openDialog(db.customers.length&&db.rackets.length?'orderDialog':'customerDialog');else openDialog('customerDialog');};
+$('#customerForm').onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);db.customers.push({id:uid(),firstname:d.get('firstname'),lastname:d.get('lastname'),phone:d.get('phone'),email:d.get('email')});e.target.reset();closeDialog('customerDialog');save();};
+$('#racketForm').onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);db.rackets.push({id:uid(),customerId:d.get('customerId'),model:d.get('model'),grip:d.get('grip'),pattern:d.get('pattern')});e.target.reset();closeDialog('racketDialog');save();};
+$('#orderForm').onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);db.orders.push({id:uid(),customerId:d.get('customerId'),racketId:d.get('racketId'),string:d.get('string'),tension:d.get('tension'),status:d.get('status')});e.target.reset();closeDialog('orderDialog');save();};
+['customerSearch','racketSearch','orderSearch'].forEach(id=>$('#'+id).oninput=render);
+$('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='racket-service-export.json';a.click();};
+render();
 </script>
-
 </body>
 </html>
