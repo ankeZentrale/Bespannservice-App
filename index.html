@@ -1,135 +1,17 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Bespannservice Kundenportal</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body{
-    font-family:Arial,sans-serif;
-    background:#f4f6f9;
-    padding:20px;
-    max-width:800px;
-    margin:auto;
-}
-
-.card{
-    background:white;
-    padding:20px;
-    margin-bottom:20px;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-input{
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
-    border:1px solid #ccc;
-    border-radius:6px;
-    box-sizing:border-box;
-}
-
-button{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:10px 15px;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#1d4ed8;
-}
-</style>
-</head>
-
+<html>
 <body>
 
-<h1>🎾 Bespannservice Kundenportal</h1>
+<h1>Test</h1>
 
-<div class="card">
-
-<h2>Registrierung</h2>
-
-<input id="firstname" placeholder="Vorname">
-
-<input id="lastname" placeholder="Nachname">
-
-<input id="phone" placeholder="Telefon">
-
-<input id="email" type="email" placeholder="E-Mail">
-
-<input id="password" type="password" placeholder="Passwort">
-
-<button onclick="registerUser()">
-Registrieren
+<button onclick="test()">
+Klick mich
 </button>
 
-</div>
-
-<div id="message"></div>
-
 <script>
-
-const SUPABASE_URL = "https://jaiopyopglxuvrrjdqrk.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_KRRgCz4faQD2tm-gKUEtag_dXf0wwom";
-
-const { createClient } = supabase;
-
-const client = createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
-async function registerUser(){
-
-    const firstname =
-    document.getElementById("firstname").value;
-
-    const lastname =
-    document.getElementById("lastname").value;
-
-    const phone =
-    document.getElementById("phone").value;
-
-    const email =
-    document.getElementById("email").value;
-
-    const password =
-    document.getElementById("password").value;
-
-    const { data, error } =
-    await client.auth.signUp({
-        email: email,
-        password: password
-    });
-
-    if(error){
-        document.getElementById("message").innerHTML =
-        error.message;
-        return;
-    }
-
-    await client
-    .from("customers")
-    .insert([{
-        id: data.user.id,
-        firstname: firstname,
-        lastname: lastname,
-        phone: phone,
-        email: email
-    }]);
-
-    document.getElementById("message").innerHTML =
-    "✅ Registrierung erfolgreich";
+function test() {
+    alert("JavaScript funktioniert");
 }
-
 </script>
 
 </body>
