@@ -1,0 +1,460 @@
+index.html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bespannungsservice Manager</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+    color:#1e3a8a;
+}
+
+.container{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:20px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+input, select, textarea{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    box-sizing:border-box;
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:left;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+
+.status-eingegangen{
+    color:red;
+    font-weight:bold;
+}
+
+.status-arbeit{
+    color:orange;
+    font-weight:bold;
+}
+
+.status-fertig{
+    color:green;
+    font-weight:bold;
+}
+
+.status-abgeholt{
+    color:blue;
+    font-weight:bold;
+}
+
+.small{
+    font-size:12px;
+    color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎾 Bespannungsservice Manager</h1>
+
+<div class="container">
+
+<div class="card">
+
+<h2>Kunde anlegen</h2>
+
+<input type="text" id="customerName" placeholder="Name">
+<input type="text" id="customerPhone" placeholder="Telefon">
+<input type="email" id="customerEmail" placeholder="E-Mail">
+<input type="text" id="customerClub" placeholder="Verein">
+
+<button onclick="addCustomer()">Kunde speichern</button>
+
+</div>
+
+<div class="card">
+
+<h2>Schläger anlegen</h2>
+
+<select id="racketCustomer"></select>
+
+<input type="text" id="racketBrand" placeholder="Marke">
+<input type="text" id="racketModel" placeholder="Modell">
+<input type="text" id="racketGrip" placeholder="Griffstärke">
+<input type="text" id="racketString" placeholder="Standardsaite">
+<input type="number" id="racketKg" placeholder="Standard-Härte KG">
+
+<button onclick="addRacket()">Schläger speichern</button>
+
+</div>
+
+<div class="card">
+
+<h2>Neuer Bespannauftrag</h2>
+
+<select id="orderCustomer"></select>
+
+<select id="orderRacket"></select>
+
+<input type="text" id="orderString" placeholder="Saite">
+<input type="number" id="orderKg" placeholder="Härte in KG">
+
+<input type="number" id="orderLabor" placeholder="Arbeitslohn €" value="18">
+
+<input type="number" id="orderStringPrice" placeholder="Saitenpreis €" value="12">
+
+<textarea id="orderNote" placeholder="Bemerkung"></textarea>
+
+<button onclick="createOrder()">Auftrag anlegen</button>
+
+</div>
+
+<div class="card">
+
+<h2>Offene Aufträge</h2>
+
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Kunde</th>
+<th>Schläger</th>
+<th>Saite</th>
+<th>KG</th>
+<th>Preis</th>
+<th>Status</th>
+<th>Zeit</th>
+<th>Aktion</th>
+</tr>
+</thead>
+<tbody id="ordersTable"></tbody>
+</table>
+
+</div>
+
+<div class="card">
+
+<h2>Kundenliste</h2>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Telefon</th>
+<th>Verein</th>
+</tr>
+</thead>
+<tbody id="customerTable"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+let customers = [];
+let rackets = [];
+let orders = [];
+
+function addCustomer(){
+
+const customer = {
+id: Date.now(),
+name: document.getElementById("customerName").value,
+phone: document.getElementById("customerPhone").value,
+email: document.getElementById("customerEmail").value,
+club: document.getElementById("customerClub").value
+};
+
+customers.push(customer);
+
+updateCustomerViews();
+
+document.getElementById("customerName").value="";
+document.getElementById("customerPhone").value="";
+document.getElementById("customerEmail").value="";
+document.getElementById("customerClub").value="";
+}
+
+function updateCustomerViews(){
+
+let customerTable = document.getElementById("customerTable");
+customerTable.innerHTML="";
+
+customers.forEach(c=>{
+
+customerTable.innerHTML += `
+<tr>
+<td>${c.name}</td>
+<td>${c.phone}</td>
+<td>${c.club}</td>
+</tr>
+`;
+
+});
+
+const customerSelects = [
+document.getElementById("racketCustomer"),
+document.getElementById("orderCustomer")
+];
+
+customerSelects.forEach(select=>{
+
+select.innerHTML="";
+
+customers.forEach(c=>{
+
+select.innerHTML += `
+<option value="${c.id}">
+${c.name}
+</option>
+`;
+
+});
+
+});
+
+}
+
+function addRacket(){
+
+let racket = {
+
+id: Date.now(),
+
+customerId:
+document.getElementById("racketCustomer").value,
+
+brand:
+document.getElementById("racketBrand").value,
+
+model:
+document.getElementById("racketModel").value,
+
+grip:
+document.getElementById("racketGrip").value,
+
+string:
+document.getElementById("racketString").value,
+
+kg:
+document.getElementById("racketKg").value
+
+};
+
+rackets.push(racket);
+
+updateRacketDropdown();
+
+alert("Schläger gespeichert");
+
+}
+
+function updateRacketDropdown(){
+
+const customerId =
+document.getElementById("orderCustomer").value;
+
+let dropdown =
+document.getElementById("orderRacket");
+
+dropdown.innerHTML="";
+
+rackets
+.filter(r=>r.customerId==customerId)
+.forEach(r=>{
+
+dropdown.innerHTML += `
+<option value="${r.id}">
+${r.brand} ${r.model}
+</option>
+`;
+
+});
+
+}
+
+document.addEventListener("change",(e)=>{
+
+if(e.target.id==="orderCustomer"){
+updateRacketDropdown();
+}
+
+});
+
+function createOrder(){
+
+const customerId =
+document.getElementById("orderCustomer").value;
+
+const racketId =
+document.getElementById("orderRacket").value;
+
+const customer =
+customers.find(c=>c.id == customerId);
+
+const racket =
+rackets.find(r=>r.id == racketId);
+
+const labor =
+Number(document.getElementById("orderLabor").value);
+
+const stringPrice =
+Number(document.getElementById("orderStringPrice").value);
+
+const total = labor + stringPrice;
+
+const order = {
+
+id: orders.length + 1,
+
+customer: customer.name,
+
+racket: racket.brand + " " + racket.model,
+
+string:
+document.getElementById("orderString").value,
+
+kg:
+document.getElementById("orderKg").value,
+
+price:
+total.toFixed(2),
+
+status:
+"Eingegangen",
+
+time:
+new Date().toLocaleString('de-DE')
+
+};
+
+orders.push(order);
+
+renderOrders();
+
+}
+
+function nextStatus(index){
+
+const sequence = [
+"Eingegangen",
+"In Arbeit",
+"Fertig",
+"Abgeholt"
+];
+
+let current =
+orders[index].status;
+
+let pos =
+sequence.indexOf(current);
+
+if(pos < sequence.length-1){
+orders[index].status =
+sequence[pos+1];
+}
+
+renderOrders();
+
+}
+
+function renderOrders(){
+
+const table =
+document.getElementById("ordersTable");
+
+table.innerHTML="";
+
+orders.forEach((o,index)=>{
+
+let cls = "";
+
+if(o.status==="Eingegangen")
+cls="status-eingegangen";
+
+if(o.status==="In Arbeit")
+cls="status-arbeit";
+
+if(o.status==="Fertig")
+cls="status-fertig";
+
+if(o.status==="Abgeholt")
+cls="status-abgeholt";
+
+table.innerHTML += `
+<tr>
+<td>${o.id}</td>
+<td>${o.customer}</td>
+<td>${o.racket}</td>
+<td>${o.string}</td>
+<td>${o.kg}</td>
+<td>${o.price} €</td>
+<td class="${cls}">
+${o.status}
+</td>
+<td>${o.time}</td>
+<td>
+<button onclick="nextStatus(${index})">
+Weiter
+</button>
+</td>
+</tr>
+`;
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
