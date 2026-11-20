@@ -1,41 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-<button onclick="signup()">
-Benutzer anlegen
-</button>
+const supabase = createClient(
+  'DEINE_URL',
+  'DEIN_PUBLISHABLE_KEY'
+)
 
-<script>
-
-const { createClient } = supabase;
-
-const client = createClient(
-  "DEINE_SUPABASE_URL",
-  "DEIN_PUBLISHABLE_KEY"
-);
-
-async function signup() {
-
-  const { data, error } =
-    await client.auth.signUp({
-      email: "test123@test.de",
-      password: "Test123456!"
-    });
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  alert("Erfolgreich");
-
-}
-
+window.supabase = supabase
 </script>
-
-</body>
-</html>
