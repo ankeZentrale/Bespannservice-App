@@ -5,43 +5,37 @@
 </head>
 <body>
 
-const client = createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-    
-    
-    
-    
-    <button onclick="registerUser()">
-Registrieren
+<button onclick="signup()">
+Benutzer anlegen
 </button>
 
 <script>
 
-async function registerUser() {
+const { createClient } = supabase;
 
-    alert("Start Registrierung");
+const client = createClient(
+  "DEINE_SUPABASE_URL",
+  "DEIN_PUBLISHABLE_KEY"
+);
 
-    const { data, error } =
+async function signup() {
+
+  const { data, error } =
     await client.auth.signUp({
-
-        email: "test123@example.com",
-        password: "Passwort123!"
-
+      email: "test123@test.de",
+      password: "Test123456!"
     });
 
-    if(error){
+  if(error){
+    alert(error.message);
+    return;
+  }
 
-        alert("FEHLER: " + error.message);
-        return;
-
-    }
-
-    alert("Benutzer angelegt");
-
-    console.log(data);
+  alert("Erfolgreich");
 
 }
 
 </script>
+
+</body>
+</html>
