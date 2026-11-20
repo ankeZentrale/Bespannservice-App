@@ -1,17 +1,68 @@
 <!DOCTYPE html>
 <html>
+<head>
+<title>Supabase Test</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
 <body>
 
-<h1>Test</h1>
+<h1>Supabase Test</h1>
 
-<button onclick="test()">
-Klick mich
+<button onclick="testSupabase()">
+Verbindung testen
 </button>
 
+<div id="result"></div>
+
 <script>
-function test() {
-    alert("JavaScript funktioniert");
+
+const SUPABASE_URL =
+"https://jaiopyopglxuvrrjdqrk.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"HIER_DEIN_PUBLISHABLE_KEY";
+
+const { createClient } = supabase;
+
+const client =
+createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
+
+async function testSupabase(){
+
+document.getElementById("result").innerHTML =
+"Client erstellt ✅";
+
+try{
+
+const { data, error } =
+await client.auth.getSession();
+
+if(error){
+
+document.getElementById("result").innerHTML =
+"Fehler: " + error.message;
+
+return;
 }
+
+document.getElementById("result").innerHTML =
+"Supabase verbunden ✅";
+
+}
+catch(ex){
+
+document.getElementById("result").innerHTML =
+"JavaScript Fehler: " + ex.message;
+
+}
+
+}
+
 </script>
 
 </body>
